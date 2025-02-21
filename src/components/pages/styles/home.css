@@ -53,8 +53,84 @@
   
   .title {
     font-size: 24px;
-    color: black;
+    color: #62B9FF;
     font-weight: bold;
     margin-bottom: 10px;
+    font-family: 'Inria Sans', sans-serif;
   }
+
+.donation-options {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.donation-item {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 35px;
+  color: white;
+  position: relative;
+
   
+}
+
+.donation-text {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  position: absolute;
+  bottom: -25px;
+}
+
+.donation-item.money {
+  box-shadow: 0px 4px 0 #A5D6A7;
+  color: #A5D6A7;
+}
+
+.donation-item.money .donation-text {
+  color: #A5D6A7;
+}
+
+.donation-item.food {
+  box-shadow: 0px 4px 0 #FFAB91;
+  color: #FFAB91;
+}
+
+.donation-item.food .donation-text {
+  color: #FFAB91;
+}
+
+.donation-item.clothes {
+  box-shadow: 0px 4px 0 #90CAF9;
+  color: #90CAF9;
+}
+
+.donation-item.clothes .donation-text {
+  color: #90CAF9;
+}
+
+.donation-item.toys {
+  box-shadow: 0px 4px 0 #9FA8DA;
+  color: #9FA8DA;
+}
+
+.donation-item.toys .donation-text {
+  color: #9FA8DA;
+}
+
+.donation-item.medicine {
+  box-shadow: 0px 4px 0 #F44336;
+  color: #F44336;
+}
+
+.donation-item.medicine .donation-text {
+  color: #F44336;
+}
+

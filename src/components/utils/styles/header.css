@@ -1,0 +1,43 @@
+.headerContainer{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    height: 100px;
+    background: #fff;
+}
+
+.loginButton {
+    background: #9FA8DA;    
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    border-radius: 24px;
+    &:hover {
+        background: #6188A8;
+    }
+}
+.logo {
+    width: 200px;
+    margin-top: 20px;
+    margin-left: 20px;
+    color: #e63946; 
+}
+.nav{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-right: 20px;
+    gap: 20px;
+    a {
+        text-decoration: none;
+        cursor: pointer;
+        font-weight: bold;
+        color: black;
+      }
+}
