@@ -1,0 +1,11 @@
+/* footer.css */
+.footerContainer {
+    text-align: center;
+    padding: 20px;
+    background: #f1f1f1;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+  }
+  
