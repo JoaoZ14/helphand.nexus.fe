@@ -1,0 +1,98 @@
+.login {
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+.containerLogin {
+  color: white;
+  display: flex;
+  justify-content: space-around;
+}
+.title {
+  font-size: 48px;
+  font-weight: bold ;
+  font-family: 'Roboto', sans-serif;
+  opacity: "100%";
+  text-align: center;
+  color: #e35a50;
+}
+.formLogin {
+    width: 100%;
+    max-width: 300px;
+    border-radius: 10px;
+    background: #ffffff;
+    text-align: center;
+}
+
+.banner-image {
+  width: 30%;
+}
+.register {
+    background: none;
+    border: none;
+    color: #333;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+    margin: 0;
+    
+}
+.buttonEnter{
+    margin-bottom: 20px;
+}
+.loginForm {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.form-group {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ccc;
+    border-radius: 25px;
+    font-size: 16px;
+    outline: none;
+    transition: 0.3s ease-in-out;
+    box-shadow: inset 0px 4px 6px rgba(0, 0, 0, 0.1); 
+}
+
+.form-group input:focus {
+    border-color: #6a5acd;
+    box-shadow: inset 0px 4px 6px rgba(0, 0, 0, 0.15), 0px 0px 8px rgba(106, 90, 205, 0.5); 
+}
+.form-group input::placeholder {
+    color: #999;
+    font-size: 14px;
+}
+
+button {
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 25px;
+    background: #6a5acd;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+button:hover {
+    background: #5a4dbf;
+}

@@ -6,6 +6,7 @@ import Header from './components/utils/header';
 import FAQs from './components/pages/FAQs';
 import OngsList from './components/pages/ongsList';
 import OngDetail from './components/pages/ongDetail';
+import Login from './components/pages/login';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/faqs" element={<FAQs />} />
         <Route path="/ongs" element={<OngsList />} />
         <Route path="/ong-details/:id" element={<OngDetail />} />
+        <Route path="/login" element={<Login/>} />
       </Routes>
      {/*  <Footer />*/}
     </>
