@@ -2,6 +2,11 @@
     font-family: Arial, sans-serif;
     color: #333;
   }
+
+  .banner-image {
+    width: 85%;
+    object-fit: cover;
+  }
   
   .banner {
     text-align: center;
@@ -12,6 +17,29 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+  }
+
+  .title_div{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+  }
+
+  .title_Destaque{
+    font-size: 24px;
+    color: #7E92FF;
+    font-weight: bold;
+    background-color: #ffffff;
+    margin-bottom: 10px;
+    padding: 5px 10px;
+    border-radius: 24px 0px 24px 0px;
+    font-family: 'Inria Sans', sans-serif;
+    width: 250px;
+    text-align: center;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.05);
+    
   }
   
   .search-bar {
@@ -30,6 +58,7 @@
   .ong-list {
     display: flex;
     justify-content: center;
+    
     gap: 20px;
     margin-top: 20px;
   }
@@ -37,7 +66,6 @@
   .ong-card {
     width: 300px;
     border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
   }
   

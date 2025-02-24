@@ -6,12 +6,16 @@ import {
   FaGift,
   FaPills,
 } from "react-icons/fa";
-import "../pages/styles/home.css"; // Ou ajuste o caminho conforme necessário
+import { useOngs } from '../../context/OngsContext';
+import "../pages/styles/home.css";
 
 const Home = () => {
+  const { ongs } = useOngs();
+
   return (
     <div className="home">
       <section className="banner">
+        <img className="banner-image" src="imgDonateOng.jpeg" alt="Banner" />
         <h1 className="title">O que você pode doar</h1>
         <div className="donation-options">
           <div className="donation-item money">
@@ -35,35 +39,22 @@ const Home = () => {
             <span className="donation-text">Remédios</span>
           </div>
         </div>
-        {/*  <input className="search-bar" type="text" placeholder="Pesquisar ONGs..." /> */}
       </section>
 
       <section className="ong-section">
-        <h1 className="title">ONGs em Destaque</h1>
+        <div className="title_div">
+          <h1 className="title_Destaque">ONGs em Destaque</h1>
+        </div>
         <div className="ong-list">
-          <div className="ong-card">
-            <img
-              className="ong-image"
-              src="https://source.unsplash.com/300x200/?help"
-              alt="ONG 1"
-            />
-            <div className="ong-info">
-              <h3>ONG Esperança</h3>
-              <p>Ajudando crianças carentes desde 1995.</p>
+          {ongs.map((ong, index) => (
+            <div className="ong-card" key={index} style={{ backgroundColor: ong.color }}>
+              <img className="ong-image" src={ong.image} alt={ong.name} />
+              <div className="ong-info">
+                <h3>{ong.name}</h3>
+                <p>{ong.description}</p>
+              </div>
             </div>
-          </div>
-
-          <div className="ong-card">
-            <img
-              className="ong-image"
-              src="https://source.unsplash.com/300x200/?charity"
-              alt="ONG 2"
-            />
-            <div className="ong-info">
-              <h3>Projeto Vida</h3>
-              <p>Assistência para famílias em vulnerabilidade.</p>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
     </div>
