@@ -17,7 +17,7 @@ function App() {
         <Route path="/ongs" element={<OngsList />} />
         <Route path="/ong-details/:id" element={<OngDetail />} />
       </Routes>
-      <Footer />
+     {/*  <Footer />*/}
     </>
   );
 }

@@ -14,7 +14,7 @@ const OngsList = () => {
           <div className="ong-info">
             <h2>{ong.name}</h2>
             <p>{ong.description}</p>
-            <p>{ong.address}</p>
+            <p>{`${ong.address.street}, ${ong.address.city}, ${ong.address.state}`}</p>
           </div>
         </Link>
       ))}
