@@ -8,10 +8,8 @@ import Dashboard from './pages/Dashboard';
 import UserProfile from './pages/UserProfile';
 import './App.css';
 import Home from './components/pages/home';
-import Navigation from './components/Navigation';
 import Header from './components/utils/header';
 import FAQ from './pages/FAQ';
-import { QRCodeSVG } from "qrcode.react";
 
 function App() {
   return (
