@@ -18,26 +18,64 @@
     font-weight: bold;
     transition: all 0.3s ease;
     border-radius: 24px;
-    &:hover {
-        background: #6188A8;
-    }
 }
+
+.loginButton:hover {
+    background: #6188A8;
+}
+
 .logo {
     width: 200px;
     margin-top: 20px;
     margin-left: 20px;
     color: #e63946; 
 }
+
 .nav{
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-right: 20px;
     gap: 20px;
-    a {
-        text-decoration: none;
-        cursor: pointer;
-        font-weight: bold;
-        color: black;
-      }
+}
+
+.nav a {
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: bold;
+    color: black;
+}
+
+.userMenu {
+    position: relative;
+}
+
+.userAvatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    object-fit: cover;
+}
+
+.menuDropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    min-width: 150px;
+    z-index: 1000;
+}
+
+.menuItem {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    color: #333;
+}
+
+.menuItem:hover {
+    background-color: #f8f9fa;
+    color: #007bff;
 }

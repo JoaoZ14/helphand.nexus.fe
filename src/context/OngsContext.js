@@ -1,23 +1,53 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase/config';
 
-const OngsContext = createContext();
-
-const ongsData = [
-  { id: 1, name: 'ONG 1', description: 'Aliqua exercitation mollit anim nisi ea. Ex esse veniam anim irure ut.', address: { cep: '27537-278', street: 'Street 1', city: 'City 1', state: 'State 1' }, image: 'https://source.unsplash.com/300x200/?charity1' },
-  { id: 2, name: 'ONG 2', description: 'Description 2', address: { cep: '27537-278', street: 'Street 2', city: 'City 2', state: 'State 2' }, image: 'https://source.unsplash.com/300x200/?charity2' },
-  { id: 3, name: 'ONG 3', description: 'Description 3', address: { cep: '27537-278', street: 'Street 3', city: 'City 3', state: 'State 3' }, image: 'https://source.unsplash.com/300x200/?charity3' },
-];
+const OngsContext = createContext({});
 
 export const OngsProvider = ({ children }) => {
-  const [ongs, setOngs] = useState(ongsData);
+  const [ongs, setOngs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchOngs = async () => {
+      try {
+        const ongsCollection = collection(db, 'ongs');
+        const ongsSnapshot = await getDocs(ongsCollection);
+        const ongsData = ongsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })).filter(ong => ong.ativo);
+        
+        setOngs(ongsData);
+        setLoading(false);
+      } catch (err) {
+        console.error('Erro ao buscar ONGs:', err);
+        setError('Não foi possível carregar as ONGs');
+        setLoading(false);
+      }
+    };
+
+    fetchOngs();
+  }, []);
 
   return (
-    <OngsContext.Provider value={{ ongs, setOngs }}>
+    <OngsContext.Provider
+      value={{
+        ongs,
+        loading,
+        error
+      }}
+    >
       {children}
     </OngsContext.Provider>
   );
 };
 
 export const useOngs = () => {
-  return useContext(OngsContext);
+  const context = useContext(OngsContext);
+  if (!context) {
+    throw new Error('useOngs must be used within an OngsProvider');
+  }
+  return context;
 };

@@ -10,7 +10,7 @@ import { useOngs } from '../../context/OngsContext';
 import "../pages/styles/home.css";
 
 const Home = () => {
-  const { ongs } = useOngs();
+  const { ongs, loading, error } = useOngs();
 
   return (
     <div className="home">
@@ -46,15 +46,21 @@ const Home = () => {
           <h1 className="title_Destaque">ONGs em Destaque</h1>
         </div>
         <div className="ong-list">
-          {ongs.map((ong, index) => (
-            <div className="ong-card" key={index} style={{ backgroundColor: ong.color }}>
-              <img className="ong-image" src={ong.image} alt={ong.name} />
-              <div className="ong-info">
-                <h3>{ong.name}</h3>
-                <p>{ong.description}</p>
+          {loading ? (
+            <div className="loading">Carregando ONGs...</div>
+          ) : error ? (
+            <div className="error">{error}</div>
+          ) : (
+            ongs.map((ong) => (
+              <div className="ong-card" key={ong.id}>
+                <img className="ong-image" src={ong.imagemUrl} alt={ong.nome} />
+                <div className="ong-info">
+                  <h3>{ong.nome}</h3>
+                  <p>{ong.descricao}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </section>
     </div>

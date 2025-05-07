@@ -1,0 +1,227 @@
+# Configuração do Firebase para o HelpHand
+
+## 1. Configuração Inicial do Projeto
+```bash
+# Instalar Firebase CLI globalmente
+npm install -g firebase-tools
+
+# Fazer login no Firebase
+firebase login
+
+# Inicializar o projeto Firebase
+firebase init
+```
+
+## 2. Configuração do Firestore
+```javascript
+// Regras de segurança do Firestore
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Regras para usuários
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Regras para campanhas
+    match /campaigns/{campaignId} {
+      allow read: if true; // Qualquer um pode ler
+      allow create: if request.auth != null && 
+                   request.resource.data.ongId == request.auth.uid;
+      allow update, delete: if request.auth != null && 
+                           resource.data.ongId == request.auth.uid;
+    }
+    
+    // Regras para doações
+    match /donations/{donationId} {
+      allow read: if request.auth != null && 
+                 (resource.data.donorId == request.auth.uid || 
+                  resource.data.ongId == request.auth.uid);
+      allow create: if request.auth != null;
+      allow update, delete: if false; // Doações não podem ser modificadas
+    }
+  }
+}
+```
+
+## 3. Configuração do Storage
+```javascript
+// Regras de segurança do Storage
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read: if true; // Qualquer um pode ler
+      allow write: if request.auth != null && 
+                  request.resource.size < 5 * 1024 * 1024 && // 5MB
+                  request.resource.contentType.matches('image/.*');
+    }
+  }
+}
+```
+
+## 4. Configuração da Autenticação
+```javascript
+// Configurações de autenticação
+{
+  "signInOptions": [
+    {
+      "provider": "password",
+      "requireDisplayName": true
+    }
+  ],
+  "blockingFunctions": {
+    "beforeCreate": {
+      "function": "beforeCreateUser"
+    }
+  }
+}
+```
+
+## 5. Funções Cloud
+```javascript
+// functions/index.js
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+admin.initializeApp();
+
+// Função para validar usuário antes de criar
+exports.beforeCreateUser = functions.auth.user().beforeCreate((user, context) => {
+  // Validar email
+  if (!user.email || !user.email.includes('@')) {
+    throw new functions.https.HttpsError(
+      'invalid-argument',
+      'Email inválido'
+    );
+  }
+  
+  // Validar senha
+  if (user.password.length < 6) {
+    throw new functions.https.HttpsError(
+      'invalid-argument',
+      'Senha muito curta'
+    );
+  }
+  
+  return null;
+});
+
+// Função para processar doações
+exports.processDonation = functions.firestore
+  .document('donations/{donationId}')
+  .onCreate(async (snap, context) => {
+    const donation = snap.data();
+    
+    // Atualizar total da campanha
+    const campaignRef = admin.firestore()
+      .collection('campaigns')
+      .doc(donation.campaignId);
+      
+    await admin.firestore().runTransaction(async (transaction) => {
+      const campaignDoc = await transaction.get(campaignRef);
+      const currentAmount = campaignDoc.data().currentAmount || 0;
+      
+      transaction.update(campaignRef, {
+        currentAmount: currentAmount + donation.amount
+      });
+    });
+    
+    // Enviar notificação para a ONG
+    const ongDoc = await admin.firestore()
+      .collection('users')
+      .doc(donation.ongId)
+      .get();
+      
+    if (ongDoc.exists) {
+      const ongData = ongDoc.data();
+      if (ongData.fcmToken) {
+        await admin.messaging().send({
+          token: ongData.fcmToken,
+          notification: {
+            title: 'Nova doação recebida!',
+            body: `Você recebeu uma doação de R$ ${donation.amount}`
+          }
+        });
+      }
+    }
+    
+    return null;
+  });
+```
+
+## 6. Estrutura do Banco de Dados
+```javascript
+// Estrutura recomendada do Firestore
+{
+  "users": {
+    "{userId}": {
+      "name": "string",
+      "email": "string",
+      "userType": "donor" | "ong",
+      "createdAt": "timestamp",
+      "fcmToken": "string" // Para notificações
+    }
+  },
+  "campaigns": {
+    "{campaignId}": {
+      "title": "string",
+      "description": "string",
+      "goal": "number",
+      "currentAmount": "number",
+      "ongId": "string",
+      "status": "active" | "completed" | "cancelled",
+      "createdAt": "timestamp"
+    }
+  },
+  "donations": {
+    "{donationId}": {
+      "amount": "number",
+      "donorId": "string",
+      "ongId": "string",
+      "campaignId": "string",
+      "status": "pending" | "completed" | "failed",
+      "createdAt": "timestamp"
+    }
+  }
+}
+```
+
+## 7. Comandos para Implantação
+```bash
+# Implantar regras do Firestore
+firebase deploy --only firestore:rules
+
+# Implantar regras do Storage
+firebase deploy --only storage
+
+# Implantar funções Cloud
+firebase deploy --only functions
+
+# Implantar tudo
+firebase deploy
+```
+
+## 8. Monitoramento e Manutenção
+```bash
+# Ver logs das funções
+firebase functions:log
+
+# Ver status do projeto
+firebase status
+
+# Ver métricas do projeto
+firebase analytics:view
+```
+
+Este script fornece uma configuração completa do Firebase para o HelpHand, incluindo:
+- Regras de segurança para Firestore e Storage
+- Funções Cloud para processamento de doações
+- Estrutura recomendada do banco de dados
+- Comandos para implantação e monitoramento
+
+Para usar este script:
+1. Copie o conteúdo para um arquivo
+2. Execute os comandos na ordem apresentada
+3. Ajuste as regras de segurança conforme necessário
+4. Implante as configurações usando os comandos fornecidos 
