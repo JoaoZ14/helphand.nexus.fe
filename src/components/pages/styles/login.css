@@ -36,6 +36,21 @@
     margin: 0;
     
 }
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 70%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 16px; 
+  color: #6a5acd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
 .buttonEnter{
     margin-bottom: 20px;
 }

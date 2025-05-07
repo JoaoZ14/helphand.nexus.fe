@@ -5,9 +5,29 @@
 
   .banner-image {
     width: 85%;
+    max-width: 100%;
     object-fit: cover;
   }
   
+
+  @media (max-width: 768px) {
+    .banner-image {
+      width: 95%;
+    }
+  }
+  
+ 
+  @media (max-width: 480px) {
+    .banner-image {
+      width: 100%;
+      height: auto;
+    }
+  }
+  @media (min-width: 1920px) {
+  .banner-image {
+    width: 65%;
+  }
+}
   .banner {
     text-align: center;
     background: url("https://source.unsplash.com/1600x600/?charity,help") no-repeat center;

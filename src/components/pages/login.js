@@ -1,6 +1,17 @@
 import "../pages/styles/login.css";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useState } from "react";
+
+
 
 const Login = () => {
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [password, setPassword] = useState("");
+  
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
+  };
+
   return (
     <div className="login">
       <section className="containerLogin">
@@ -20,8 +31,18 @@ const Login = () => {
 
             <div className="form-group">
               <label htmlFor="password">Senha</label>
-              <input type="password" id="password" name="password"  placeholder="Digite sua senha"
-              required />
+              <input
+                type={passwordVisible ? "text" : "password"}
+                id="password"
+                name="password"
+                placeholder="Digite sua senha"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <span className="password-toggle" onClick={togglePasswordVisibility}>
+                {passwordVisible ? <FaEyeSlash /> : <FaEye />}
+              </span>
             </div>
             <button className="buttonEnter" type="submit">
               Entrar
