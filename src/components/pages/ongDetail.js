@@ -125,7 +125,6 @@ const OngDetail = () => {
       setOng(ongFromContext);
       setLoading(false);
     } else {
-      // Busca direta no Firestore
       const fetchOng = async () => {
         try {
           const docRef = doc(db, "ongs", id);
@@ -151,19 +150,17 @@ const OngDetail = () => {
       <MainGrid>
         <div>
           <ImgBox>
-            {ong.image ? (
-              <ONGImg src={ong.image} alt={ong.name} />
-            ) : null}
+            {ong.imagemUrl ? <ONGImg src={ong.imagemUrl} alt={ong.nome} /> : null}
           </ImgBox>
           <BottomGrid>
             <div>
               <AddressTitle>Localização:</AddressTitle>
               <AddressText>
-                {ong.address
-                  ? `${ong.address.street}, ${ong.address.number}, ${ong.address.neighborhood}, ${ong.address.city}, ${ong.address.state}`
-                  : 'Endereço não informado'}
+                {ong.endereco
+                  ? `${ong.endereco.rua || "Rua não informada"}, ${ong.endereco.numero || "Número não informado"} - ${ong.endereco.bairro || "Bairro não informado"}, ${ong.endereco.cidade || "Cidade não informada"} - ${ong.endereco.estado || "Estado não informado"}`
+                  : "Endereço não informado"}
               </AddressText>
-              {ong.address && (
+              {ong.endereco && (
                 <MapBox>
                   <iframe
                     title="mapa"
@@ -173,7 +170,7 @@ const OngDetail = () => {
                     loading="lazy"
                     allowFullScreen
                     src={`https://www.google.com/maps?q=${encodeURIComponent(
-                      ong.address.street + ', ' + ong.address.city + ', ' + ong.address.state
+                      `${ong.endereco.rua}, ${ong.endereco.cidade}, ${ong.endereco.estado}`
                     )}&output=embed`}
                   />
                 </MapBox>
@@ -183,7 +180,7 @@ const OngDetail = () => {
               <PixTitle>Vai doar via PIX?</PixTitle>
               <PixEmail>
                 Aqui está nossa chave PIX:<br />
-                E-mail: <b>{ong.email || 'email não informado'}</b>
+                E-mail: <b>{ong.email || "email não informado"}</b>
               </PixEmail>
               <PixKey>
                 {ong.pixKey ? (
@@ -191,7 +188,7 @@ const OngDetail = () => {
                     Chave: <b>{ong.pixKey}</b>
                   </>
                 ) : (
-                  'Chave PIX não informada'
+                  "Chave PIX não informada"
                 )}
               </PixKey>
               {ong.pixKey && (
@@ -206,8 +203,8 @@ const OngDetail = () => {
           </BottomGrid>
         </div>
         <RightCol>
-          <ONGName>{ong.name}</ONGName>
-          <ONGDesc>{ong.description}</ONGDesc>
+          <ONGName>{ong.nome}</ONGName>
+          <ONGDesc>{ong.descricao}</ONGDesc>
           <SectionTitle>O que precisamos:</SectionTitle>
           <Needs>
             {ong.donationNeeds && ong.donationNeeds.length > 0 ? (

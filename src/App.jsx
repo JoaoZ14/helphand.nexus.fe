@@ -10,6 +10,7 @@ import './App.css';
 import Home from './components/pages/home';
 import Header from './components/utils/header';
 import FAQ from './pages/FAQ';
+import NewOngForm from './components/pages/newOngForm';
 
 function App() {
   return (
@@ -23,6 +24,8 @@ function App() {
         <Route path="/ongs" element={<ONGList />} />
 
         <Route path="/ong-details/:id" element={<OngDetail />} />
+
+        <Route path="/add-ong" element={<NewOngForm />} />
 
         <Route path="/login" element={<Login />} />
 

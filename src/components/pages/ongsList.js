@@ -10,7 +10,7 @@ const ListContainer = styled.div`
 `;
 
 const Title = styled.h1`
-  color: #FF6B6B;
+  color: #ff6b6b;
   text-align: center;
   margin-bottom: 2rem;
 `;
@@ -76,6 +76,8 @@ const InfoItem = styled.div`
 const OngsList = () => {
   const { ongs, loading, error } = useOngs();
 
+  console.log("ONGs Data:", ongs); // Log the data to inspect its structure
+
   if (loading) return <div>Carregando...</div>;
   if (error) return <div>Erro ao carregar ONGs</div>;
 
@@ -85,18 +87,14 @@ const OngsList = () => {
       <Grid>
         {ongs.map((ong) => (
           <Card key={ong.id} to={`/ong-details/${ong.id}`}>
-            <CardImage src={ong.image} alt={ong.name} />
+            <CardImage src={ong.imagemUrl} alt={ong.nome} />
             <CardContent>
-              <CardTitle>{ong.name}</CardTitle>
-              <CardDescription>{ong.description}</CardDescription>
+              <CardTitle>{ong?.nome}</CardTitle>
+              <CardDescription>{ong?.descricao}</CardDescription>
               <CardInfo>
                 <InfoItem>
-                  <span>📍</span>
-                  {ong.address.city} - {ong.address.state}
-                </InfoItem>
-                <InfoItem>
                   <span>🎯</span>
-                  {ong.donationNeeds.length} necessidades
+                  {ong.donationNeeds?.length || 0} necessidades
                 </InfoItem>
               </CardInfo>
             </CardContent>

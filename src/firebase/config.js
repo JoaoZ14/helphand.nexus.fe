@@ -4,6 +4,7 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAPrGwSX0z5AGBlYiV-Bd_3v5YuPSQp548",
@@ -134,5 +135,21 @@ export const signInWithGoogle = async () => {
   }
 };
 
+// Função para fazer upload de imagens
+export const uploadImage = async (file, folder = 'images') => {
+  try {
+    if (!file) throw new Error('Nenhum arquivo foi fornecido.');
+
+    const storageRef = ref(storage, `${folder}/${file.name}`);
+    const snapshot = await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+
+    return downloadURL;
+  } catch (error) {
+    console.error('Erro ao fazer upload da imagem:', error);
+    throw new Error('Não foi possível fazer o upload da imagem. Verifique as configurações do Firebase Storage.');
+  }
+};
+
 export { auth, db, storage };
-export default app; 
+export default app;
