@@ -11,6 +11,7 @@ import Home from './components/pages/home';
 import Header from './components/utils/header';
 import FAQ from './pages/FAQ';
 import NewOngForm from './components/pages/newOngForm';
+import OngsList from './components/pages/ongsList';
 
 function App() {
   return (
@@ -21,7 +22,7 @@ function App() {
 
         <Route path='/faqs' element={<FAQ />} />
 
-        <Route path="/ongs" element={<ONGList />} />
+        <Route path="/ongs" element={<OngsList />} />
 
         <Route path="/ong-details/:id" element={<OngDetail />} />
 

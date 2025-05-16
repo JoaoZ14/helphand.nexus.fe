@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { collection, addDoc } from "firebase/firestore";
-import { db, uploadImage } from "../../firebase/config";
+import { collection, doc, setDoc } from "firebase/firestore";
+import { db, storage } from "../../firebase/config";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -53,6 +54,13 @@ const Button = styled.button`
   }
 `;
 
+const uploadImageWithUniqueName = async (file, folder, uniqueName) => {
+  if (!file) throw new Error("Nenhum arquivo foi fornecido.");
+  const storageRef = ref(storage, `${folder}/${uniqueName}`);
+  const snapshot = await uploadBytes(storageRef, file);
+  return await getDownloadURL(snapshot.ref);
+};
+
 const NewOngForm = () => {
   const [formData, setFormData] = useState({
     nome: "",
@@ -102,13 +110,23 @@ const NewOngForm = () => {
     setSuccess(false);
 
     try {
+      const ongsCollection = collection(db, "ongs");
+      const newOngRef = doc(ongsCollection);
       let imageUrl = "";
       if (imageFile) {
-        imageUrl = await uploadImage(imageFile, "ongs");
+        const uniqueName = `${newOngRef.id}_${imageFile.name.replace(
+          /\s+/g,
+          "_"
+        )}`;
+        // Corrige: cria novo File para garantir nome correto
+        const fileToUpload = new File(
+          [await imageFile.arrayBuffer()],
+          uniqueName,
+          { type: imageFile.type }
+        );
+        imageUrl = await uploadImageWithUniqueName(fileToUpload, "ongs", uniqueName);
       }
-
-      const ongsCollection = collection(db, "ongs");
-      await addDoc(ongsCollection, { ...formData, imagemUrl: imageUrl });
+      await setDoc(newOngRef, { ...formData, imagemUrl: imageUrl });
       setSuccess(true);
       setFormData({
         nome: "",
@@ -130,7 +148,7 @@ const NewOngForm = () => {
       });
       setImageFile(null);
     } catch (err) {
-      console.error("Erro ao adicionar ONG:", err);
+      console.error(err);
       setError("Não foi possível adicionar a ONG. Tente novamente.");
     } finally {
       setLoading(false);
@@ -236,7 +254,6 @@ const NewOngForm = () => {
         />
 
         <Label>Imagem</Label>
-        <Input type="file" accept="image/*" onChange={handleImageChange} />
 
         {loading ? (
           <Button disabled>Adicionando...</Button>

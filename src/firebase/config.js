@@ -151,5 +151,26 @@ export const uploadImage = async (file, folder = 'images') => {
   }
 };
 
+// Função para registrar doação via PIX
+export const registerPixDonation = async (userId, donationData) => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    const userDoc = await getDoc(userRef);
+    if (!userDoc.exists()) throw new Error('Usuário não encontrado');
+    const userDonations = userDoc.data().pixDonations || [];
+    const newDonation = {
+      ...donationData,
+      date: new Date(),
+    };
+    await setDoc(userRef, {
+      pixDonations: [...userDonations, newDonation],
+    }, { merge: true });
+    return newDonation;
+  } catch (error) {
+    console.error('Erro ao registrar doação PIX:', error);
+    throw error;
+  }
+};
+
 export { auth, db, storage };
 export default app;

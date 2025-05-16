@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useOngs } from "../../context/OngsContext";
 import styled from "styled-components";
-import { QRCodeSVG } from "qrcode.react";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../firebase/config";
+import { db, auth, registerPixDonation } from "../../firebase/config";
+import Modal from "react-modal";
 
 const Container = styled.div`
   max-width: 900px;
@@ -13,16 +13,23 @@ const Container = styled.div`
 `;
 
 const MainGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 32px;
 `;
 
-const ImgBox = styled.div`
-  background: #e9eafe;
-  border-radius: 12px;
+const TopGrid = styled.div`
+  display: flex;
+  gap: 32px;
+  align-items: center;
   width: 100%;
-  height: 200px;
+  justify-content: center;
+  `;
+
+const ImgBox = styled.div`
+  border-radius: 12px;
+  width: 300px;
+  height: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -30,15 +37,74 @@ const ImgBox = styled.div`
 `;
 
 const ONGImg = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width: 300px;
+  height: 300px;
+
 `;
 
 const RightCol = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+`;
+
+const ModalContent = styled.div`
+  text-align: center;
+  padding: 20px;
+`;
+
+const ModalHeader = styled.h3`
+  color: #1a365d;
+  font-weight: 500;
+  margin: 0 0 25px 0;
+  font-size: 1.3rem;
+`;
+
+const CleanInput = styled.input`
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin-bottom: 25px;
+  color: #4a5568;
+  
+  &:focus {
+    outline: none;
+    border-color: #a0aec0;
+  }
+`;
+
+const SimpleQRBox = styled.div`
+  margin: 25px 0;
+  padding: 15px;
+  background: #f8fafc;
+  border-radius: 8px;
+`;
+
+const MinimalButton = styled.button`
+  width: 100%;
+  padding: 14px;
+  background: ${props => props.primary ? '#1a365d' : '#fff'};
+  color: ${props => props.primary ? '#fff' : '#4a5568'};
+  border: ${props => props.primary ? 'none' : '1px solid #e2e8f0'};
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  
+  &:hover {
+    background: ${props => props.primary ? '#2d3748' : '#f8fafc'};
+  }
+`;
+
+const SubtleError = styled.div`
+  color: #c53030;
+  font-size: 0.9rem;
+  margin: 15px 0;
+  padding: 12px;
+  background: #fff5f5;
+  border-radius: 6px;
 `;
 
 const ONGName = styled.h2`
@@ -74,6 +140,7 @@ const BottomGrid = styled.div`
 
 const MapBox = styled.div`
   margin-bottom: 8px;
+  width: 500px;
 `;
 
 const AddressTitle = styled.div`
@@ -99,18 +166,9 @@ const PixTitle = styled.div`
   margin-bottom: 6px;
 `;
 
-const PixEmail = styled.div`
-  font-size: 0.95rem;
-  margin-bottom: 4px;
-`;
-
 const PixKey = styled.div`
   font-size: 0.95rem;
   margin-bottom: 8px;
-`;
-
-const QRBox = styled.div`
-  margin-top: 8px;
 `;
 
 const OngDetail = () => {
@@ -118,6 +176,11 @@ const OngDetail = () => {
   const { ongs } = useOngs();
   const [ong, setOng] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [donationValue, setDonationValue] = useState(10);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isLoadingDonation, setIsLoadingDonation] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     const ongFromContext = ongs.find((o) => o.id === id);
@@ -133,7 +196,8 @@ const OngDetail = () => {
             setOng({ id: docSnap.id, ...docSnap.data() });
           }
         } catch (e) {
-          setOng(null);
+          // Apenas loga o erro, não faz setOng(null) para evitar problemas de renderização
+          console.error(e);
         } finally {
           setLoading(false);
         }
@@ -142,46 +206,94 @@ const OngDetail = () => {
     }
   }, [id, ongs]);
 
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setDonationValue(10);
+    setIsSuccess(false);
+    setErrorMsg("");
+  };
+
+  const handleDonation = async () => {
+    setIsLoadingDonation(true);
+    setErrorMsg("");
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        alert("Você precisa estar logado para doar.");
+        setIsLoadingDonation(false);
+        return;
+      }
+      const donationData = {
+        ongId: ong.id,
+        ongName: ong.nome,
+        value: donationValue,
+        pixKey: ong.pixKey,
+        ongImage: ong.imagemUrl || null,
+        status: "informada",
+        enviadaEm: new Date(),
+      };
+      await registerPixDonation(user.uid, donationData);
+      setIsSuccess(true);
+    } catch (e) {
+      console.error(e);
+      setErrorMsg("Erro ao registrar doação. Tente novamente.");
+    }
+    setIsLoadingDonation(false);
+  };
+
   if (loading) return <div>Carregando...</div>;
   if (!ong) return <div>ONG não encontrada</div>;
 
   return (
     <Container>
       <MainGrid>
-        <div>
+        <TopGrid>
           <ImgBox>
             {ong.imagemUrl ? <ONGImg src={ong.imagemUrl} alt={ong.nome} /> : null}
           </ImgBox>
-          <BottomGrid>
-            <div>
-              <AddressTitle>Localização:</AddressTitle>
-              <AddressText>
-                {ong.endereco
-                  ? `${ong.endereco.rua || "Rua não informada"}, ${ong.endereco.numero || "Número não informado"} - ${ong.endereco.bairro || "Bairro não informado"}, ${ong.endereco.cidade || "Cidade não informada"} - ${ong.endereco.estado || "Estado não informado"}`
-                  : "Endereço não informado"}
-              </AddressText>
-              {ong.endereco && (
-                <MapBox>
-                  <iframe
-                    title="mapa"
-                    width="100%"
-                    height="120"
-                    style={{ border: 0, borderRadius: 8 }}
-                    loading="lazy"
-                    allowFullScreen
-                    src={`https://www.google.com/maps?q=${encodeURIComponent(
-                      `${ong.endereco.rua}, ${ong.endereco.cidade}, ${ong.endereco.estado}`
-                    )}&output=embed`}
-                  />
-                </MapBox>
+        </TopGrid>
+        <TopGrid>
+          <RightCol>
+            <ONGName>{ong.nome}</ONGName>
+            <ONGDesc>{ong.descricao}</ONGDesc>
+            <SectionTitle>O que precisamos:</SectionTitle>
+            <Needs>
+              {ong.necessidades ? (
+                
+                  <li >{ong.necessidades}</li>
+                
+              ) : (
+                <li>Nenhuma necessidade de doação registrada no momento.</li>
               )}
-            </div>
-            <PixBox>
-              <PixTitle>Vai doar via PIX?</PixTitle>
-              <PixEmail>
-                Aqui está nossa chave PIX:<br />
-                E-mail: <b>{ong.email || "email não informado"}</b>
-              </PixEmail>
+            </Needs>
+          </RightCol>
+        </TopGrid>
+        <BottomGrid>
+          <div>
+            <AddressTitle>Localização:</AddressTitle>
+            <AddressText>
+              {ong.endereco
+                ? `${ong.endereco.rua || "Rua não informada"}, ${ong.endereco.numero || "Número não informado"} - ${ong.endereco.bairro || "Bairro não informado"}, ${ong.endereco.cidade || "Cidade não informada"} - ${ong.endereco.estado || "Estado não informado"}`
+                : "Endereço não informado"}
+            </AddressText>
+            {ong.endereco && (
+              <MapBox>
+                <iframe
+                  title="mapa"
+                  width="100%"
+                  height="300"
+                  style={{ border: 0, borderRadius: 8 }}
+                  loading="lazy"
+                  allowFullScreen
+                  src={`https://www.google.com/maps?q=${encodeURIComponent(
+                    `${ong.endereco.rua}, ${ong.endereco.cidade}, ${ong.endereco.estado}`
+                  )}&output=embed`}
+                />
+              </MapBox>
+            )}
+          </div>
+          <PixBox>
+            <PixTitle>Vai doar via PIX?</PixTitle>
               <PixKey>
                 {ong.pixKey ? (
                   <>
@@ -191,32 +303,74 @@ const OngDetail = () => {
                   "Chave PIX não informada"
                 )}
               </PixKey>
-              {ong.pixKey && (
-                <>
-                  Ou temos aqui o QR Code:<br />
-                  <QRBox>
-                    <QRCodeSVG value={ong.pixKey} size={80} />
-                  </QRBox>
-                </>
-              )}
-            </PixBox>
-          </BottomGrid>
-        </div>
-        <RightCol>
-          <ONGName>{ong.nome}</ONGName>
-          <ONGDesc>{ong.descricao}</ONGDesc>
-          <SectionTitle>O que precisamos:</SectionTitle>
-          <Needs>
-            {ong.donationNeeds && ong.donationNeeds.length > 0 ? (
-              ong.donationNeeds.map((need, idx) => (
-                <li key={idx}>{need.title}</li>
-              ))
-            ) : (
-              <li>Nenhuma necessidade de doação registrada no momento.</li>
-            )}
-          </Needs>
-        </RightCol>
+          </PixBox>
+        </BottomGrid>
       </MainGrid>
+      {/* Modal de doação PIX */}
+    <Modal
+  isOpen={showModal}
+  onRequestClose={handleCloseModal}
+  ariaHideApp={false}
+  style={{
+    overlay: { 
+      backgroundColor: "rgba(255,255,255,0.9)",
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    content: { 
+      position: 'relative',
+      maxWidth: '400px',
+      width: '90%',
+      borderRadius: '10px',
+      padding: '0',
+      border: '1px solid #e2e8f0',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+      background: '#fff'
+    }
+  }}
+>
+  {isSuccess ? (
+    <ModalContent>
+      <div style={{margin: '30px 0'}}>
+        <div style={{fontSize: '2.5rem', marginBottom: '15px'}}>✓</div>
+        <ModalHeader>Doação confirmada</ModalHeader>
+        <MinimalButton onClick={handleCloseModal}>Fechar</MinimalButton>
+      </div>
+    </ModalContent>
+  ) : (
+    <ModalContent>
+      <ModalHeader>Doar para {ong.nome}</ModalHeader>
+      
+      <div>
+        <CleanInput
+          type="number"
+          min="1"
+          value={donationValue}
+          onChange={e => setDonationValue(Number(e.target.value))}
+          placeholder="Valor (R$)"
+        />
+      </div>
+
+      <SimpleQRBox>
+        <div style={{marginTop: '15px', fontSize: '0.85rem', color: '#718096'}}>
+          {ong.pixKey}
+        </div>
+      </SimpleQRBox>
+
+      {errorMsg && <SubtleError>{errorMsg}</SubtleError>}
+
+      <div style={{display: 'flex', gap: '10px', marginTop: '20px'}}>
+        <MinimalButton primary onClick={handleDonation} disabled={isLoadingDonation}>
+          {isLoadingDonation ? 'Processando...' : 'Confirmar'}
+        </MinimalButton>
+        <MinimalButton onClick={handleCloseModal}>
+          Cancelar
+        </MinimalButton>
+      </div>
+    </ModalContent>
+  )}
+</Modal>
     </Container>
   );
 };

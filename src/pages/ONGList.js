@@ -22,6 +22,7 @@ const ONGCard = styled(Link)`
   padding: 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
+  width: 200px;
   text-decoration: none;
   color: inherit;
   position: relative;
@@ -48,7 +49,7 @@ const VerifiedBadge = styled.div`
 `;
 
 const ONGImage = styled.img`
-  width: 100%;
+  width: 200px;
   height: 200px;
   object-fit: cover;
   border-radius: 4px;
@@ -176,7 +177,7 @@ const ONGList = () => {
             <ONGContact>
               <div>Email: {ong.email}</div>
               {ong.telefone && <div>Telefone: {ong.telefone}</div>}
-              {ong.endereco && <div>Endereço: {ong.endereco}</div>}
+              {ong.endereco && <div>Endereço: {ong.endereco.rua}</div>}
               {ong.site && (
                 <div>
                   Website: <WebsiteLink href={ong.site} target="_blank" rel="noopener noreferrer">

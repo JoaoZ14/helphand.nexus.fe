@@ -4,6 +4,7 @@ import { AppBar, Toolbar, Typography, Button, IconButton, Avatar, Menu, MenuItem
 import { styled } from '@mui/material/styles';
 import { auth } from '../firebase/config';
 import { onAuthStateChanged } from 'firebase/auth';
+import { FaUserCircle } from 'react-icons/fa'; // Importando o ícone para o avatar padrão
 
 const StyledLink = styled(RouterLink)(({ theme }) => ({
   color: 'inherit',
@@ -67,11 +68,15 @@ const Navigation = () => {
                 onClick={handleMenu}
                 color="inherit"
               >
-                <Avatar
-                  src={user.photoURL}
-                  alt={user.displayName || 'Usuário'}
-                  sx={{ width: 32, height: 32 }}
-                />
+                {user.photoURL ? (
+                  <Avatar
+                    src={user.photoURL}
+                    alt={user.displayName || 'Usuário'}
+                    sx={{ width: 32, height: 32 }}
+                  />
+                ) : (
+                  <FaUserCircle size={32} color="#ccc" />
+                )}
               </IconButton>
               <Menu
                 id="menu-appbar"
@@ -105,4 +110,4 @@ const Navigation = () => {
   );
 };
 
-export default Navigation; 
+export default Navigation;
