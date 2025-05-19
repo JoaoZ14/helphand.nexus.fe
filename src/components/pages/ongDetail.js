@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useOngs } from "../../context/OngsContext";
 import styled from "styled-components";
 import { doc, getDoc } from "firebase/firestore";
 import { db, auth, registerPixDonation } from "../../firebase/config";
 import Modal from "react-modal";
+import { FiPhone, FiMapPin, FiInfo, FiGift, FiLogIn } from "react-icons/fi";
 
 const Container = styled.div`
   max-width: 900px;
   margin: 24px auto;
   padding: 0 16px;
+  @media (max-width: 600px) {
+    padding: 20px;
+  }
 `;
 
 const MainGrid = styled.div`
@@ -24,7 +28,11 @@ const TopGrid = styled.div`
   align-items: center;
   width: 100%;
   justify-content: center;
-  `;
+  @media (max-width: 800px) {
+    gap: 18px;
+    align-items: stretch;
+  }
+`;
 
 const ImgBox = styled.div`
   border-radius: 12px;
@@ -33,13 +41,19 @@ const ImgBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  @media (max-width: 600px) {
+    width: 180px;
+    height: 180px;
+  }
 `;
 
 const ONGImg = styled.img`
   width: 300px;
   height: 300px;
-
+  @media (max-width: 600px) {
+    width: 180px;
+    height: 180px;
+  }
 `;
 
 const RightCol = styled.div`
@@ -68,7 +82,7 @@ const CleanInput = styled.input`
   font-size: 1rem;
   margin-bottom: 25px;
   color: #4a5568;
-  
+
   &:focus {
     outline: none;
     border-color: #a0aec0;
@@ -85,16 +99,16 @@ const SimpleQRBox = styled.div`
 const MinimalButton = styled.button`
   width: 100%;
   padding: 14px;
-  background: ${props => props.primary ? '#1a365d' : '#fff'};
-  color: ${props => props.primary ? '#fff' : '#4a5568'};
-  border: ${props => props.primary ? 'none' : '1px solid #e2e8f0'};
+  background: ${(props) => (props.primary ? "#1a365d" : "#fff")};
+  color: ${(props) => (props.primary ? "#fff" : "#4a5568")};
+  border: ${(props) => (props.primary ? "none" : "1px solid #e2e8f0")};
   border-radius: 8px;
   font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.15s;
-  
+
   &:hover {
-    background: ${props => props.primary ? '#2d3748' : '#f8fafc'};
+    background: ${(props) => (props.primary ? "#2d3748" : "#f8fafc")};
   }
 `;
 
@@ -119,6 +133,19 @@ const ONGDesc = styled.p`
   margin-bottom: 12px;
 `;
 
+const ContactInfo = styled.div`
+  font-size: 0.97rem;
+  color: #1a365d;
+    margin-top: 10px;
+
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+
+  justify-content: center;
+  gap: 7px;
+`;
+
 const SectionTitle = styled.div`
   font-weight: bold;
   margin: 18px 0 6px 0;
@@ -136,11 +163,19 @@ const BottomGrid = styled.div`
   grid-template-columns: 1.1fr 1fr;
   gap: 32px;
   margin-top: 18px;
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
 `;
 
 const MapBox = styled.div`
   margin-bottom: 8px;
   width: 500px;
+  @media (max-width: 600px) {
+    width: 100%;
+    min-width: 0;
+  }
 `;
 
 const AddressTitle = styled.div`
@@ -171,6 +206,25 @@ const PixKey = styled.div`
   margin-bottom: 8px;
 `;
 
+const LoginPixButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+  background:rgb(255, 255, 255);
+  color:rgb(58, 134, 68);
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: background 0.15s;
+  &:hover {
+    background: #e2e8f0;
+  }
+`;
+
 const OngDetail = () => {
   const { id } = useParams();
   const { ongs } = useOngs();
@@ -181,6 +235,8 @@ const OngDetail = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoadingDonation, setIsLoadingDonation] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const ongFromContext = ongs.find((o) => o.id === id);
@@ -204,6 +260,12 @@ const OngDetail = () => {
       };
       fetchOng();
     }
+  }, [id, ongs]);
+
+  useEffect(() => {
+    setUser(auth.currentUser);
+    const unsubscribe = auth.onAuthStateChanged((u) => setUser(u));
+    return () => unsubscribe();
   }, [id, ongs]);
 
   const handleCloseModal = () => {
@@ -256,12 +318,16 @@ const OngDetail = () => {
           <RightCol>
             <ONGName>{ong.nome}</ONGName>
             <ONGDesc>{ong.descricao}</ONGDesc>
-            <SectionTitle>O que precisamos:</SectionTitle>
+            {ong.telefone && (
+              <ContactInfo>
+                <FiPhone style={{marginRight: 4}} />
+                <b>Telefone:</b> {ong.telefone}
+              </ContactInfo>
+            )}
+            <SectionTitle><FiInfo style={{marginRight: 4}} />O que precisamos:</SectionTitle>
             <Needs>
               {ong.necessidades ? (
-                
-                  <li >{ong.necessidades}</li>
-                
+                <h4>{ong.necessidades}</h4>
               ) : (
                 <li>Nenhuma necessidade de doação registrada no momento.</li>
               )}
@@ -269,8 +335,33 @@ const OngDetail = () => {
           </RightCol>
         </TopGrid>
         <BottomGrid>
+          <PixBox>
+            <PixTitle><FiGift style={{marginRight: 4}} />Vai doar via PIX?</PixTitle>
+            <PixKey>
+              {user ? (
+                ong.pixKey ? (
+                  <>
+                    Chave: <b>{ong.pixKey}</b>
+                    <div style={{marginTop: 8, fontSize: '0.93rem', color: '#1a365d', background: '#f0fdf4', borderRadius: 6, padding: '8px 10px', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6}}>
+                      <FiInfo style={{marginRight: 4}} />
+                      <span>Se possível, coloque no motivo/descritivo do PIX: <b>Doação via HelpHand</b></span>
+                    </div>
+                  </>
+                ) : (
+                  "Chave PIX não informada"
+                )
+              ) : (
+                <>
+                  <span style={{color: '#c53030'}}>Faça login para visualizar a chave PIX</span>
+                  <LoginPixButton onClick={() => navigate('/login')} title="Ir para login">
+                    <FiLogIn /> Fazer login
+                  </LoginPixButton>
+                </>
+              )}
+            </PixKey>
+          </PixBox>
           <div>
-            <AddressTitle>Localização:</AddressTitle>
+            <AddressTitle><FiMapPin style={{marginRight: 4}} />Localização:</AddressTitle>
             <AddressText>
               {ong.endereco
                 ? `${ong.endereco.rua || "Rua não informada"}, ${ong.endereco.numero || "Número não informado"} - ${ong.endereco.bairro || "Bairro não informado"}, ${ong.endereco.cidade || "Cidade não informada"} - ${ong.endereco.estado || "Estado não informado"}`
@@ -292,18 +383,7 @@ const OngDetail = () => {
               </MapBox>
             )}
           </div>
-          <PixBox>
-            <PixTitle>Vai doar via PIX?</PixTitle>
-              <PixKey>
-                {ong.pixKey ? (
-                  <>
-                    Chave: <b>{ong.pixKey}</b>
-                  </>
-                ) : (
-                  "Chave PIX não informada"
-                )}
-              </PixKey>
-          </PixBox>
+          
         </BottomGrid>
       </MainGrid>
       {/* Modal de doação PIX */}

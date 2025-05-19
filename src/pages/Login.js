@@ -12,6 +12,11 @@ const LoginContainer = styled.div`
   padding: 20px;
   background-color: #fff;
   gap: 40px;
+  @media (max-width: 800px) {
+    flex-direction: column;
+    gap: 20px;
+    padding: 30px;
+  }
 `;
 
 const LoginForm = styled.div`
@@ -20,6 +25,17 @@ const LoginForm = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  @media (max-width: 600px) {
+    padding: 20px 8px;
+    box-shadow: none;
+    border-radius: 0;
+    min-width: 0;
+    max-width: 100vw;
+  }
 `;
 
 const LogoSection = styled.div`
@@ -28,11 +44,17 @@ const LogoSection = styled.div`
   justify-content: center;
   align-items: center;
   padding: 40px;
+  @media (max-width: 800px) {
+    padding: 10px 0 0 0;
+  }
 `;
 
 const Logo = styled.img`
   max-width: 300px;
   height: auto;
+  @media (max-width: 600px) {
+    display: none;
+  }
 `;
 
 const Title = styled.h1`
@@ -49,6 +71,10 @@ const Form = styled.form`
   align-items: center;
   width: 100%;
   max-width: 380px;
+  @media (max-width: 600px) {
+    max-width: 100vw;
+    padding: 0;
+  }
 `;
 
 const Input = styled.input`
@@ -59,9 +85,11 @@ const Input = styled.input`
   border-radius: 24px;
   font-size: 14px;
   width: 100%;
-  min-width: 280px;
-  &::placeholder {
-    color: #9E9E9E;
+  min-width: 0;
+  @media (max-width: 600px) {
+    font-size: 15px;
+    padding: 10px;
+    min-width: 0;
   }
 `;
 
@@ -82,6 +110,10 @@ const Button = styled.button`
   &:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
+  }
+  @media (max-width: 600px) {
+    width: 100%;
+    font-size: 15px;
   }
 `;
 
@@ -117,6 +149,10 @@ const GoogleButton = styled.button`
   gap: 8px;
   &:hover {
     background-color: #f5f5f5;
+  }
+  @media (max-width: 600px) {
+    width: 100%;
+    font-size: 15px;
   }
 `;
 
@@ -251,4 +287,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default Login;

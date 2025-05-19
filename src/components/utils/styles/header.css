@@ -1,10 +1,14 @@
 .headerContainer{
     display: flex;
-    justify-content: space-between;
+    flex-direction: row;
     align-items: center;
+    justify-content: space-between;
     padding: 10px;
     height: 100px;
     background: #fff;
+    position: relative;
+
+   
 }
 
 .loginButton {
@@ -25,18 +29,25 @@
 }
 
 .logo {
-    width: 200px;
-    margin-top: 20px;
-    margin-left: 20px;
-    color: #e63946; 
+  width: 160px;
+  max-width: 220px;
+  min-width: 120px;
+  margin: 0;
+  display: block;
+  float: none;
+  position: static;
+  z-index: 1201;
 }
 
 .nav{
     display: flex;
-    justify-content: space-between;
+    flex-direction: row;
+    justify-content: flex-end;
     align-items: center;
-    margin-right: 20px;
+    width: auto;
     gap: 20px;
+    margin: 0 20px 0 0;
+    margin-top: 0;
 }
 
 .nav a {
@@ -72,10 +83,159 @@
 .menuItem {
     padding: 0.75rem 1rem;
     cursor: pointer;
+    font-size: 14px;
     color: #333;
 }
 
 .menuItem:hover {
     background-color: #f8f9fa;
     color: #007bff;
+}
+
+.logoBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.navBtn {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  padding: 12px 16px;
+  border-radius: 0;
+  margin: 0;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.2s;
+}
+
+.navBtn:hover, .navBtn:focus {
+  background: #f0f2f5;
+}
+
+.menuDropdown .menuItem {
+  background: none;
+  border: none;
+  color: #333;
+  font: inherit;
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.menuDropdown .menuItem:hover, .menuDropdown .menuItem:focus {
+  background-color: #f8f9fa;
+  color: #007bff;
+}
+
+.mobileMenuButton {
+  background: none;
+  border: none;
+  color: #ff9393;
+  font-size: 1.8rem;
+  margin-right: 10px;
+  cursor: pointer;
+  margin-top: 30px;
+}
+
+@media (max-width: 900px) {
+  .headerContainer {
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0 0 0;
+    height: auto;
+  }
+  .logo {
+    width: 130px;
+    margin: 10px auto 0 auto;
+    display: block;
+    position: static;
+  }
+  .nav {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 0;
+    margin-top: 10px;
+    gap: 0;
+    padding: 0 0 10px 0;
+  }
+  .nav a, .loginButton {
+    width: 100%;
+    text-align: left;
+    padding: 12px 16px;
+    border-radius: 0;
+    margin: 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .userMenu {
+    margin-top: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+  }
+  .menuDropdown {
+    left: 0;
+    right: auto;
+    min-width: 100%;
+    border-radius: 0 0 4px 4px;
+  }
+  .mobileMenuButton {
+    display: block;
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    z-index: 1100;
+  }
+  .headerContainer {
+    position: relative;
+  }
+}
+
+@media (max-width: 600px) {
+  .headerContainer {
+    padding: 0;
+  }
+  .logo {
+    width: 90px;
+    margin: 5px auto 0 auto;
+  }
+  .nav a, .loginButton {
+    font-size: 15px;
+    padding: 10px 10px;
+  }
+  .userAvatar {
+    width: 28px;
+    height: 28px;
+  }
+  .menuDropdown {
+    min-width: 100vw;
+    left: 0;
+    right: auto;
+  }
+}
+
+@media (max-width: 400px) {
+  .logo {
+    width: 60px;
+  }
+  .headerContainer {
+    padding: 0;
+  }
+  .nav a, .loginButton {
+    font-size: 13px;
+    padding: 8px 6px;
+  }
 }

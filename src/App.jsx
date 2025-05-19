@@ -1,6 +1,5 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import ONGList from './pages/ONGList';
 import OngDetail from './components/pages/ongDetail';
 import Login from './pages/Login';
 import Register from './pages/Register';
