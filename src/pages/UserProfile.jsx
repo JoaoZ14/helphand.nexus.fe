@@ -1,11 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth, db } from '../firebase/config';
+import { auth, db, updateUser } from '../firebase/config';
 import { doc, getDoc } from 'firebase/firestore';
 import { AuthContext } from '../context/AuthContext';
-import { useOngs } from '../context/OngsContext';
 import styled from 'styled-components';
-import { FaUserCircle, FaHeart, FaCog, FaLock, FaCreditCard, FaUserEdit } from 'react-icons/fa';
+import { FaUserCircle, FaCog } from 'react-icons/fa';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -41,16 +40,6 @@ const SectionTitle = styled.h2`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-`;
-
-const FavoriteOrgCard = styled.div`
-  padding: 1rem;
-  background: white;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
 `;
 
 const Title = styled.h1`
@@ -102,45 +91,15 @@ const SettingsMenu = styled.div`
   gap: 0.5rem;
 `;
 
-const StyledSettingsButton = styled.button`
-  padding: 1rem;
-  border: none;
-  border-radius: 6px;
-  background: ${props => props.isActive ? '#f0f2f5' : 'transparent'};
-  color: #333;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  transition: all 0.2s ease;
-  width: 100%;
-  text-align: left;
-  font-size: 0.95rem;
-
-  &:hover {
-    background: #f0f2f5;
-    transform: translateX(5px);
-  }
-
-  &:active {
-    background: #e8e8e8;
-  }
-
-  svg {
-    color: #666;
-    font-size: 1.1rem;
-    min-width: 20px;
-  }
-`;
-
 const UserProfile = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   const { user } = useContext(AuthContext);
-  const { ongs } = useOngs();
-  const [favoriteOngs, setFavoriteOngs] = useState([]);
+  const [editMode, setEditMode] = useState(false);
+  const [form, setForm] = useState({ displayName: '', email: '' });
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -150,7 +109,6 @@ const UserProfile = () => {
           navigate('/login');
           return;
         }
-
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
           setUserData(userDoc.data());
@@ -161,21 +119,60 @@ const UserProfile = () => {
         setLoading(false);
       }
     };
-
-    const fetchFavorites = async () => {
-      if (user) {
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (userDoc.exists()) {
-          setFavoriteOngs(userDoc.data().favoriteOngs || []);
-        }
-      }
-    };
-
     fetchUserData();
-    fetchFavorites();
   }, [navigate, user]);
 
-  const favoriteOngsData = ongs.filter(ong => favoriteOngs.includes(ong.id));
+  useEffect(() => {
+    if (userData) {
+      setForm({
+        displayName: userData.displayName || '',
+        email: userData.email || '',
+      });
+    }
+  }, [userData]);
+
+  const handleCancel = () => {
+    setEditMode(false);
+    setForm({
+      displayName: userData.displayName || '',
+      email: userData.email || '',
+    });
+  };
+  const handleChange = e => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+  const getUidFromLocalStorage = () => {
+    try {
+      const apiKey = process.env.REACT_APP_FIREBASE_API_KEY || 'AIzaSyAPrGwSX0z5AGBlYiV-Bd_3v5YuPSQp548';
+      const authData = localStorage.getItem(`firebase:authUser:${apiKey}:[DEFAULT]`);
+      if (authData) {
+        const parsed = JSON.parse(authData);
+        return parsed.uid;
+      }
+    } catch (e) { console.error('Erro ao ler uid do localStorage:', e); }
+    return null;
+  };
+
+  const handleSave = async () => {
+    const uid = getUidFromLocalStorage();
+    if (!uid) {
+      alert('Usuário não autenticado. Faça login novamente.');
+      setSaving(false);
+      return;
+    }
+    setSaving(true);
+    try {
+      await updateUser(uid, {
+        displayName: form.displayName,
+        email: form.email,
+      });
+      setUserData({ ...userData, displayName: form.displayName, email: form.email });
+      setEditMode(false);
+    } catch (err) {
+      console.error('Erro ao salvar dados:', err);
+    }
+    setSaving(false);
+  };
 
   if (loading) {
     return (
@@ -187,30 +184,27 @@ const UserProfile = () => {
 
   return (
     <Container>
-     <Sidebar>
-  <div>
-    <SectionTitle>
-      <FaCog /> Configurações
-    </SectionTitle>
-    <SettingsMenu>
-      <StyledSettingsButton onClick={() => navigate('/edit-profile')}>
-        <FaUserEdit />
-        Editar Perfil
-      </StyledSettingsButton>
-
-      <StyledSettingsButton onClick={() => navigate('/payment-methods')}>
-        <FaCreditCard />
-        Métodos de Pagamento
-      </StyledSettingsButton>
-
-      <StyledSettingsButton onClick={() => navigate('/privacy')}>
-        <FaLock />
-        Privacidade
-      </StyledSettingsButton>
-    </SettingsMenu>
-  </div>
-</Sidebar>
-
+      <Sidebar>
+        <div>
+          <SectionTitle>
+            <FaCog /> Meu Perfil
+          </SectionTitle>
+          <SettingsMenu>
+            <div style={{marginTop: 32, color: '#888', fontSize: '0.98rem', lineHeight: 1.6}}>
+              <div style={{marginBottom: 12}}>
+                <b>Bem-vindo ao seu painel!</b>
+              </div>
+              <div style={{marginBottom: 8}}>
+                Aqui você pode visualizar e atualizar suas informações pessoais.
+              </div>
+              <div style={{marginBottom: 8}}>
+                <span style={{color:'#3182ce'}}>Em breve:</span> mais opções de personalização, histórico de doações e preferências de contato.
+              </div>
+              
+            </div>
+          </SettingsMenu>
+        </div>
+      </Sidebar>
       <MainContent>
         <ProfileCard>
           <ProfileHeader>
@@ -223,29 +217,43 @@ const UserProfile = () => {
               <DefaultAvatar />
             )}
             <ProfileInfo>
-              <Title>{userData?.displayName || 'Usuário'}</Title>
-              <InfoText>Email: {userData?.email}</InfoText>
-              <InfoText>Tipo: {userData?.tipo === 'doador' ? 'Doador' : 'Beneficiário'}</InfoText>
+              {editMode ? (
+                <>
+                  <Title>
+                    <input
+                      name="displayName"
+                      value={form.displayName}
+                      onChange={handleChange}
+                      style={{fontSize:'1.5rem',padding:'4px 8px',borderRadius:4,border:'1px solid #ccc',marginBottom:8,width:'100%'}}
+                    />
+                  </Title>
+                  <InfoText>
+                    Email: <input
+                      name="email"
+                      value={form.email}
+                      onChange={handleChange}
+                      style={{fontSize:'1rem',padding:'4px 8px',borderRadius:4,border:'1px solid #ccc',width:'70%'}}
+                    />
+                  </InfoText>
+                  <div style={{display:'flex',gap:8,marginTop:8}}>
+                    <button onClick={handleSave} disabled={saving} style={{background:'#3182ce',color:'#fff',border:'none',borderRadius:4,padding:'6px 18px',fontWeight:600,cursor:'pointer'}}>
+                      {saving ? 'Salvando...' : 'Salvar'}
+                    </button>
+                    <button onClick={handleCancel} disabled={saving} style={{background:'#eee',color:'#333',border:'none',borderRadius:4,padding:'6px 18px',fontWeight:600,cursor:'pointer'}}>
+                      Cancelar
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Title>{userData?.displayName || 'Usuário'}</Title>
+                  <InfoText>Email: {userData?.email}</InfoText>
+                  <InfoText>Tipo: {userData?.tipo === 'doador' ? 'Doador' : 'Beneficiário'}</InfoText>
+                </>
+              )}
             </ProfileInfo>
           </ProfileHeader>
         </ProfileCard>
-
-        <div>
-          <SectionTitle><FaHeart /> ONGs Favoritas</SectionTitle>
-          {favoriteOngsData.length === 0 ? (
-            <InfoText>Nenhuma ONG favoritada ainda.</InfoText>
-          ) : (
-            favoriteOngsData.map((org) => (
-              <FavoriteOrgCard key={org.id}>
-                <FaHeart style={{ color: '#e91e63' }} />
-                <div>
-                  <div style={{ fontWeight: 'bold' }}>{org.nome}</div>
-                  <div style={{ color: '#666' }}>{org.endereco?.cidade} - {org.endereco?.estado}</div>
-                </div>
-              </FavoriteOrgCard>
-            ))
-          )}
-        </div>
       </MainContent>
     </Container>
   );

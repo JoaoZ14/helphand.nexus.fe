@@ -1,10 +1,7 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getAuth, GoogleAuthProvider, signInWithPopup, setPersistence, browserLocalPersistence, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut } from 'firebase/auth';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAPrGwSX0z5AGBlYiV-Bd_3v5YuPSQp548",
@@ -17,20 +14,11 @@ const firebaseConfig = {
 };
 
 // Inicializa o Firebase
-let app;
-let auth;
-let db;
-let storage;
-
-try {
-  app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
-  db = getFirestore(app);
-  storage = getStorage(app);
-} catch (error) {
-  console.error('Erro ao inicializar o Firebase:', error);
-  throw new Error('Falha ao inicializar o Firebase. Verifique sua conexão e as configurações do projeto.');
-}
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+setPersistence(auth, browserLocalPersistence); // Garante persistência local
+const db = getFirestore(app);
+const storage = getStorage(app);
 
 // Função para criar usuário
 export const createUser = async (email, password, userData) => {
@@ -168,6 +156,18 @@ export const registerPixDonation = async (userId, donationData) => {
     return newDonation;
   } catch (error) {
     console.error('Erro ao registrar doação PIX:', error);
+    throw error;
+  }
+};
+
+// Função para editar dados do usuário
+export const updateUser = async (userId, updates) => {
+  try {
+    if (!userId) throw new Error('ID do usuário não informado');
+    await setDoc(doc(db, 'users', userId), updates, { merge: true });
+    return true;
+  } catch (error) {
+    console.error('Erro ao atualizar usuário:', error);
     throw error;
   }
 };
