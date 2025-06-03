@@ -154,6 +154,9 @@ const SectionTitle = styled.div`
 const Needs = styled.ul`
   margin: 0;
   padding-left: 18px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
   color: #222;
   font-size: 0.95rem;
 `;
@@ -325,11 +328,15 @@ const OngDetail = () => {
               </ContactInfo>
             )}
             <SectionTitle><FiInfo style={{marginRight: 4}} />O que precisamos:</SectionTitle>
-            <Needs>
+            <Needs style={{listStyle: 'none', paddingLeft: 0, display: 'flex', flexWrap: 'wrap', gap: 8}}>
               {ong.necessidades ? (
-                <h4>{ong.necessidades}</h4>
+                (Array.isArray(ong.necessidades) ? ong.necessidades : ong.necessidades.split(',')).map((item, idx) => (
+                  <li key={idx} style={{fontWeight: 500, color: '#1976d2', background: '#f0f7ff', borderRadius: 5, padding: '4px 12px', display: 'inline-block'}}>
+                    {item.trim()}
+                  </li>
+                ))
               ) : (
-                <li>Nenhuma necessidade de doação registrada no momento.</li>
+                <li style={{color: '#888'}}>Nenhuma necessidade de doação registrada no momento.</li>
               )}
             </Needs>
           </RightCol>

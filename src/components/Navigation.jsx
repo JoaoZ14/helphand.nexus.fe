@@ -1,10 +1,100 @@
 import React, { useState, useEffect } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Button, IconButton, Avatar, Menu, MenuItem, Box } from '@mui/material';
+import { AppBar, Toolbar, Button, IconButton, Avatar, Menu, MenuItem, Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { auth } from '../firebase/config';
 import { onAuthStateChanged } from 'firebase/auth';
 import { FaUserCircle } from 'react-icons/fa'; // Importando o ícone para o avatar padrão
+
+// styled-components para responsividade e visual moderno
+const NavBarContainer = styled(AppBar)`
+  && {
+    background: #1976d2;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+  }
+`;
+
+const StyledToolbar = styled(Toolbar)`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 0.5rem 0.5rem 0.2rem 0.5rem;
+  }
+`;
+
+const Brand = styled(RouterLink)`
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+  margin-right: 2rem;
+  transition: color 0.2s;
+  &:hover {
+    color: #ffb300;
+  }
+  @media (max-width: 600px) {
+    font-size: 1.15rem;
+    margin-right: 0.5rem;
+  }
+`;
+
+const NavLinks = styled(Box)`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.2rem;
+    margin-top: 0.2rem;
+  }
+`;
+
+const StyledButton = styled(Button)`
+  && {
+    color: #fff;
+    font-weight: 500;
+    border-radius: 20px;
+    padding: 6px 18px;
+    text-transform: none;
+    transition: background 0.18s;
+    &:hover {
+      background: #1565c0;
+    }
+    @media (max-width: 600px) {
+      width: 100%;
+      border-radius: 8px;
+      margin-bottom: 2px;
+    }
+  }
+`;
+
+const UserMenuAvatar = styled(IconButton)`
+  && {
+    margin-left: 0.5rem;
+    @media (max-width: 600px) {
+      align-self: flex-end;
+      margin-left: 0;
+    }
+  }
+`;
+
+const UserName = styled.span`
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 500;
+  margin-right: 0.5rem;
+  @media (max-width: 600px) {
+    display: none;
+  }
+`;
 
 const StyledLink = styled(RouterLink)(({ theme }) => ({
   color: 'inherit',
@@ -44,23 +134,20 @@ const Navigation = () => {
   };
 
   return (
-    <AppBar position="static">
-      <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          <StyledLink to="/">HelpHand</StyledLink>
-        </Typography>
-
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+    <NavBarContainer position="static">
+      <StyledToolbar>
+        <Brand to="/">HelpHand</Brand>
+        <NavLinks>
           <StyledLink to="/about">
-            <Button color="inherit">Sobre</Button>
+            <StyledButton>Sobre</StyledButton>
           </StyledLink>
           <StyledLink to="/contact">
-            <Button color="inherit">Contato</Button>
+            <StyledButton>Contato</StyledButton>
           </StyledLink>
-
           {user ? (
             <>
-              <IconButton
+              <UserName>{user.displayName || user.email}</UserName>
+              <UserMenuAvatar
                 size="large"
                 aria-label="account of current user"
                 aria-controls="menu-appbar"
@@ -75,23 +162,24 @@ const Navigation = () => {
                     sx={{ width: 32, height: 32 }}
                   />
                 ) : (
-                  <FaUserCircle size={32} color="#ccc" />
+                  <FaUserCircle size={32} color="#fff" style={{ background: '#bdbdbd', borderRadius: '50%' }} />
                 )}
-              </IconButton>
+              </UserMenuAvatar>
               <Menu
                 id="menu-appbar"
                 anchorEl={anchorEl}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
-                }}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                 keepMounted
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
+                PaperProps={{
+                  sx: {
+                    borderRadius: 2,
+                    minWidth: 160,
+                    boxShadow: '0 2px 12px rgba(25,118,210,0.10)',
+                  },
+                }}
               >
                 <MenuItem onClick={() => { navigate('/profile'); handleClose(); }}>
                   Meu Perfil
@@ -101,12 +189,12 @@ const Navigation = () => {
             </>
           ) : (
             <StyledLink to="/login">
-              <Button color="inherit">Entrar</Button>
+              <StyledButton>Entrar</StyledButton>
             </StyledLink>
           )}
-        </Box>
-      </Toolbar>
-    </AppBar>
+        </NavLinks>
+      </StyledToolbar>
+    </NavBarContainer>
   );
 };
 

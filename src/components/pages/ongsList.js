@@ -3,6 +3,8 @@ import { useOngs } from "../../context/OngsContext";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { FiMapPin, FiImage, FiCheckCircle } from "react-icons/fi";
+import { db } from "../../firebase/config";
+import { doc, updateDoc, increment } from "firebase/firestore";
 
 const ListContainer = styled.div`
   max-width: 1200px;
@@ -54,6 +56,22 @@ const VerifiedBadge = styled.div`
   top: 12px;
   left: 12px;
   background: #4caf50;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  z-index: 2;
+`;
+
+const ClickBadge = styled.div`
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #1976d2;
   color: #fff;
   padding: 4px 10px;
   border-radius: 16px;
@@ -131,6 +149,19 @@ const CardLocation = styled.div`
 const OngsList = () => {
   const { ongs, loading, error } = useOngs();
 
+  // Encontra a ONG mais acessada
+  const maxClicks = Math.max(...ongs.map((ong) => ong.cliques || 0), 0);
+  const mostAccessedOngId = ongs.find((ong) => (ong.cliques || 0) === maxClicks)?.id;
+
+  // Função para registrar clique
+  const handleCardClick = async (e, ongId) => {
+    try {
+      await updateDoc(doc(db, "ongs", ongId), { cliques: increment(1) });
+    } catch (err) {
+      // Erro silenciado propositalmente
+    }
+  };
+
   if (loading) return <div>Carregando...</div>;
   if (error) return <div>Erro ao carregar ONGs</div>;
 
@@ -138,42 +169,60 @@ const OngsList = () => {
     <ListContainer>
       <Title>ONGs Cadastradas</Title>
       <Grid>
-        {ongs.map((ong) => (
-          <Card key={ong.id} to={`/ong-details/${ong.id}`}>
-            {ong.verificada && (
-              <VerifiedBadge>
-                <FiCheckCircle size={16} style={{ marginRight: 3 }} /> Verificada
-              </VerifiedBadge>
-            )}
-            <CardImageBox>
-              {ong.imagemUrl ? (
-                <CardImage src={ong.imagemUrl} alt={ong.nome} />
-              ) : (
-                <CardPlaceholder>
-                  <FiImage />
-                </CardPlaceholder>
+        {ongs.map((ong) => {
+          const isMostAccessed = ong.id === mostAccessedOngId && maxClicks > 0;
+          return (
+            <Card
+              key={ong.id}
+              to={`/ong-details/${ong.id}`}
+              onClick={(e) => handleCardClick(e, ong.id)}
+            >
+              {ong.verificada && (
+                <VerifiedBadge>
+                  <FiCheckCircle size={16} style={{ marginRight: 3 }} /> Verificada
+                </VerifiedBadge>
               )}
-            </CardImageBox>
-            <CardContent>
-              <CardTitle>{ong?.nome}</CardTitle>
-              <CardDescription
-                title={
-                  ong?.endereco?.cidade && ong?.endereco?.estado
-                    ? `${ong?.endereco?.cidade} - ${ong?.endereco?.estado}`
-                    : ""
-                }
-              >
-                {ong?.descricao?.length > 60
-                  ? ong?.descricao.slice(0, 60) + "..."
-                  : ong?.descricao}
-              </CardDescription>
-              <CardLocation>
-                <FiMapPin />
-                {ong?.endereco?.cidade} - {ong?.endereco?.estado}
-              </CardLocation>
-            </CardContent>
-          </Card>
-        ))}
+              {/* Badge de mais acessada acima do nome */}
+              <CardImageBox>
+                {ong.imagemUrl ? (
+                  <CardImage src={ong.imagemUrl} alt={ong.nome} />
+                ) : (
+                  <CardPlaceholder>
+                    <FiImage />
+                  </CardPlaceholder>
+                )}
+              </CardImageBox>
+              <CardContent>
+                {isMostAccessed && (
+                  <div style={{ marginBottom: 6 }}>
+                    <ClickBadge style={{ position: 'static', margin: 0, background: '#ff9800', boxShadow: 'none' }}>
+                      <b>🔥 Mais acessada</b>
+                    </ClickBadge>
+                  </div>
+                )}
+                <CardTitle>{ong?.nome}</CardTitle>
+                <CardDescription
+                  title={
+                    ong?.endereco?.cidade && ong?.endereco?.estado
+                      ? `${ong?.endereco?.cidade} - ${ong?.endereco?.estado}`
+                      : ""
+                  }
+                >
+                  {ong?.descricao?.length > 60
+                    ? ong?.descricao.slice(0, 60) + "..."
+                    : ong?.descricao}
+                </CardDescription>
+                <CardLocation>
+                  <FiMapPin />
+                  {ong?.endereco?.cidade} - {ong?.endereco?.estado}
+                </CardLocation>
+              </CardContent>
+              <ClickBadge style={isMostAccessed ? { background: '#ff9800' } : {}}>
+                {ong.cliques ? `${ong.cliques} cliques` : '0 cliques'}
+              </ClickBadge>
+            </Card>
+          );
+        })}
       </Grid>
     </ListContainer>
   );

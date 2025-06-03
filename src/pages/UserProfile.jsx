@@ -13,6 +13,12 @@ const Container = styled.div`
   display: grid;
   gap: 2rem;
   grid-template-columns: 1fr 3fr;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+    gap: 1.2rem;
+  }
 `;
 
 const Sidebar = styled.div`
@@ -20,11 +26,18 @@ const Sidebar = styled.div`
   padding: 1.5rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  @media (max-width: 900px) {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
 `;
 
 const MainContent = styled.div`
   display: grid;
   gap: 2rem;
+  @media (max-width: 900px) {
+    gap: 1.2rem;
+  }
 `;
 
 const ProfileCard = styled.div`
@@ -32,6 +45,9 @@ const ProfileCard = styled.div`
   border-radius: 8px;
   padding: 2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  @media (max-width: 600px) {
+    padding: 1rem;
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -46,12 +62,20 @@ const Title = styled.h1`
   font-size: 2rem;
   margin-bottom: 1rem;
   color: #333;
+  @media (max-width: 600px) {
+    font-size: 1.3rem;
+    margin-bottom: 0.7rem;
+  }
 `;
 
 const InfoText = styled.p`
   font-size: 1rem;
   color: #666;
   margin-bottom: 0.5rem;
+  word-break: break-word;
+  @media (max-width: 600px) {
+    font-size: 0.95rem;
+  }
 `;
 
 const LoadingText = styled.p`
@@ -68,6 +92,11 @@ const ProfileHeader = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 2rem;
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
 `;
 
 const Avatar = styled.img`
@@ -76,6 +105,12 @@ const Avatar = styled.img`
   border-radius: 50%;
   margin-right: 2rem;
   object-fit: cover;
+  @media (max-width: 600px) {
+    width: 100px;
+    height: 100px;
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
 `;
 
 const DefaultAvatar = styled(FaUserCircle)`
@@ -83,6 +118,12 @@ const DefaultAvatar = styled(FaUserCircle)`
   height: 150px;
   color: #ccc;
   margin-right: 2rem;
+  @media (max-width: 600px) {
+    width: 100px !important;
+    height: 100px !important;
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
 `;
 
 const SettingsMenu = styled.div`
